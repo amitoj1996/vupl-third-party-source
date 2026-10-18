@@ -1,0 +1,35 @@
+Replacing the playback library in Vupl for Windows
+
+Vupl uses the public libmpv C API, major version 2. You may build and use an
+ABI-compatible modified libmpv DLL. You do not need a Vupl signing key, app source,
+or permission from the developer to use a modified playback library.
+
+1. Build a compatible libmpv-2.dll for your app architecture (x64 or ARM64), using
+   the sources and build instructions in the corresponding-source distribution.
+2. Place that DLL and its required dependent DLLs in a folder you control, such as
+   C:\Users\YourName\Libraries\mpv\libmpv-2.dll.
+3. Close Vupl. In PowerShell, set the path for your user account:
+   [Environment]::SetEnvironmentVariable('VUPL_MPV_LIBRARY',
+       'C:\Users\YourName\Libraries\mpv\libmpv-2.dll', 'User')
+4. Sign out of Windows and sign back in so that Store app launches inherit the
+   updated environment, then launch Vupl from Start.
+
+For a single launch from PowerShell you can instead use:
+   $env:VUPL_MPV_LIBRARY = 'C:\Users\YourName\Libraries\mpv\libmpv-2.dll'
+   $app = Get-AppxPackage -Name AmitojSinghLotey.Vupl
+   & (Join-Path $app.InstallLocation 'Vupl.exe')
+
+The environment variable must contain an absolute path. When it is set, Vupl
+loads that DLL before considering its bundled playback library. If the specified
+DLL cannot load, playback reports an error instead of silently loading the
+bundled copy. The protected WindowsApps directory does not need to be changed.
+The portable distribution also supports this variable, or replacement of the DLL
+next to the executable. To return to the bundled copy, remove the user variable:
+   [Environment]::SetEnvironmentVariable('VUPL_MPV_LIBRARY', $null, 'User')
+Then close Vupl and sign out/in again. A modified library may behave differently;
+keep a copy of your settings if you are experimenting.
+
+The application licence does not restrict modification of the LGPL components
+or reverse engineering needed to debug modifications to those components.
+No technical restriction or developer-held secret is required to relink or use
+an ABI-compatible modified library with this app.
